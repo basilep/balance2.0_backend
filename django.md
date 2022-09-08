@@ -122,3 +122,6 @@ Add **--insecure** to have the static file adapted
 
 ### JSON
 **pip install django-jsonfield** and import jsonfield (Problems since Django 4 ?)
+
+### REQUIREMENT TXT
+To generate requirement.txt --> **pip freeze > requirements.txt**

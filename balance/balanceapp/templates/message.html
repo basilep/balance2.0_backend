@@ -1,0 +1,15 @@
+{% include 'base.html' %}
+<h3>Message</h3>
+{% for msg in messages %}
+- {{msg.message}}<br>
+{% empty %}
+    No message yet
+{% endfor %}
+<br>
+<form action="message" method="post">
+    {% csrf_token %}
+    Permanent: <input type="checkbox" name="permanent"><br>
+    Fréquence: <input type="text" name="freq"><br>
+    Message: <input type="text" name="msg"><br>
+    <input type="submit">
+</form>

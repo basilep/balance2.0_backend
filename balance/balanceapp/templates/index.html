@@ -1,11 +1,14 @@
-Index<br>
+{% include 'base.html' %}
+Accueil balance<br>
+<h2>Envoie des données à la balance</h2>
+<h3>Donnée pour la matric LED</h3>
 
-{% for elem in example %}
-- {{elem}} <br>
-{% empty %}
-    No element
-{% endfor %}
-
-{% if id != null %}
-{{id}}
-{% endif %}
+Nombre de balance: ...
+<br>
+Nom du collectif 1: ...
+<br>
+Nom du collectif 2: ...
+<br>
+Nom bière 1: ...
+<br>
+Nom bière 2: ...

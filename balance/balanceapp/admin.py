@@ -6,3 +6,5 @@ from . models import *
 # Register your models here.
 admin.site.register(Beer)
 admin.site.register(Sale)
+admin.site.register(Collectif)
+admin.site.register(Message)

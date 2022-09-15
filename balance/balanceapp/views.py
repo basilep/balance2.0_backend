@@ -1,6 +1,7 @@
 from glob import escape
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 from . models import *
 # Create your views here.
 def index(request):  #Need request argument
@@ -10,7 +11,6 @@ def index(request):  #Need request argument
 
 @csrf_exempt
 def beers(request):
-    beers = Beer.objects.all()  #Get all beers
     if request.method == "POST":    #If it's a POST request
         print(request.POST)
         #Check that the bier does not exist
@@ -29,6 +29,9 @@ def beers(request):
         beers = Beer.objects.all()
     return render(request, 'beers.html', {'beers':beers})
 
+def beers_json(request):
+    return JsonResponse(list(Beer.objects.values()), safe = False)
+    
 def message(request):
     msgs = Message.objects.all()
     if request.method == "POST":

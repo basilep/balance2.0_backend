@@ -2,6 +2,7 @@ from glob import escape
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+import json
 from . models import *
 # Create your views here.
 def index(request):  #Need request argument
@@ -11,6 +12,7 @@ def index(request):  #Need request argument
 
 @csrf_exempt
 def beers(request):
+    beers = Beer.objects.all()
     if request.method == "POST":    #If it's a POST request
         print(request.POST)
         #Check that the bier does not exist
@@ -24,13 +26,18 @@ def beers(request):
         quantity = request.POST.get("quantity")
         try:
             Beer.objects.create(name = beer_name, weight_empty= weight_empty, rho=rho, quantity=quantity)
+
         except:
             pass
-        beers = Beer.objects.all()
     return render(request, 'beers.html', {'beers':beers})
 
 def beers_json(request):
     return JsonResponse(list(Beer.objects.values()), safe = False)
+
+def message_json(request):
+    test = json.loads(json.dumps(list(Message.objects.values())))
+    print(test)
+    return JsonResponse(list(Message.objects.values()), safe = False)
     
 def message(request):
     msgs = Message.objects.all()
@@ -41,6 +48,7 @@ def message(request):
                 return render(request, 'beers.html', {'messages':msgs})
         permanent = request.POST.get("permanent")
         freq = request.POST.get("freq")
+        
         msg = request.POST.get("msg")
         #freq and permanent send to the raspberry
         Message.objects.create(message=msg)

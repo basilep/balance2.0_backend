@@ -7,3 +7,5 @@ pip install -r requirements.txt //Install dependencies
 cd balance
 py manage.py runserver
 
+### Kali virtualenv
+source env/bin/activate

@@ -4,7 +4,15 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 from . models import *
+
+
 # Create your views here.
+
+# GLOBAL VAR
+actual_msg_page = None
+
+# VIEWS
+
 def index(request):  #Need request argument
     example_data = ["souye", "xeu le deux", "yaaaaaa"]
 
@@ -34,10 +42,19 @@ def beers(request):
 def beers_json(request):
     return JsonResponse(list(Beer.objects.values()), safe = False)
 
-def message_json(request):
-    test = json.loads(json.dumps(list(Message.objects.values())))
-    print(test)
-    return JsonResponse(list(Message.objects.values()), safe = False)
+@csrf_exempt
+def message_to_script(request):
+    global actual_msg_page  #To use the global variable
+    if actual_msg_page == None:
+        actual_msg_page = ""
+        print("souye")
+    if request.method == "POST":
+        permanent = request.POST.get("permanent")
+        freq = request.POST.get("freq")
+        msg = request.POST.get("message")
+        actual_msg_page = {"message": msg, "freq":freq, "permanent":permanent}
+    print(list(actual_msg_page), safe = False)
+    return JsonResponse(list(actual_msg_page), safe = False)
     
 def message(request):
     msgs = Message.objects.all()

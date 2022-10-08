@@ -2,6 +2,8 @@ from glob import escape
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 import json
 from . models import *
 
@@ -39,6 +41,7 @@ def beers(request):
             pass
     return render(request, 'beers.html', {'beers':beers})
 
+@login_required
 def beers_json(request):
     return JsonResponse(list(Beer.objects.values()), safe = False)
 
@@ -77,3 +80,17 @@ def affond(request):
 
 def test(request, test_id):
     return render(request, 'index.html', {'id': test_id})
+
+@csrf_exempt
+def login_user(request):
+    print(request.COOKIES)
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            print("success")
+            login(request, user)
+        else:
+            print("error")
+    return render(request, 'login.html')

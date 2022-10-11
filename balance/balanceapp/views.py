@@ -21,6 +21,7 @@ def index(request):  #Need request argument
     return render(request, 'index.html', {'example':example_data})
 
 @csrf_exempt
+@login_required
 def beers(request):
     beers = Beer.objects.all()
     if request.method == "POST":    #If it's a POST request
@@ -28,7 +29,7 @@ def beers(request):
         #Check that the bier does not exist
         for beer in beers:
             if beer.name == request.POST.get("beer_name"):
-                return render(request, 'beers.html', {'beers':beers})
+                return render(request, '404.html')
         #data = request.POST
         beer_name = request.POST.get("beer_name")
         weight_empty = request.POST.get("weight_empty")
@@ -39,13 +40,14 @@ def beers(request):
 
         except:
             pass
-    return render(request, 'beers.html', {'beers':beers})
+    return render(request, '404.html')
 
-@login_required
+
 def beers_json(request):
     return JsonResponse(list(Beer.objects.values()), safe = False)
 
 @csrf_exempt
+@login_required
 def message_to_script(request):
     global actual_msg_page  #To use the global variable
     if actual_msg_page == None:
@@ -58,7 +60,9 @@ def message_to_script(request):
         actual_msg_page = {"message": msg, "freq":freq, "permanent":permanent}
     print(list(actual_msg_page), safe = False)
     return JsonResponse(list(actual_msg_page), safe = False)
-    
+
+@csrf_exempt
+@login_required
 def message(request):
     msgs = Message.objects.all()
     if request.method == "POST":

@@ -1,9 +1,11 @@
+from dataclasses import field
 from glob import escape
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
 import json
 from . models import *
 
@@ -45,6 +47,10 @@ def beers(request):
 
 def beers_json(request):
     return JsonResponse(list(Beer.objects.values()), safe = False)
+
+def beer_json(request, beer_id):
+    data = json.loads(serializers.serialize("json", Beer.objects.filter(pk=beer_id))[1:-1])
+    return JsonResponse(data["fields"])
 
 @csrf_exempt
 @login_required

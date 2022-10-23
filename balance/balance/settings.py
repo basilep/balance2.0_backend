@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-rco)&5iy(_61a10cn0xsaqz(_whqax*_9fkdkjednv!xq$6jrf'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0', '138.48.115.58', 'balance.e-kot.be', 'balance.cercle-info.be']
 

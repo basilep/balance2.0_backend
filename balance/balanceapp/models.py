@@ -33,6 +33,7 @@ class Sale(TimestamptedModel):
     volume = models.FloatField(default=0.0) # cl
     related_beer = models.ForeignKey(Beer, on_delete=models.CASCADE)
 
+#TODO Booleen de balance
 
 class BalanceData(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)

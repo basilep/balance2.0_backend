@@ -21,6 +21,19 @@ class Beer(TimestamptedModel):
 
     def __tuple__(self):
         return self.name, str(self.weight_empty), str(self.rho), str(self.quantity)
+    
+# Gère les 2 balances
+class Balance(models.Model):
+    activated = models.BooleanField()
+    related_beer = models.ForeignKey(Beer, on_delete=models.CASCADE)
+    remaining_beer = models.FloatField(default=0.0) # cl ?
+    #Dans un premier temps flemme de stocker les collectifs, écrit juste la phrase envoyé par le front
+    sentence_display = models.CharField(max_length = 64)
+
+class Message_to_send(models.Model):
+    message = models.CharField(max_length = 128)
+    permanent = models.BooleanField()
+    frequence = models.FloatField(default=0.0)
 
 #Represents the number of beers consumed between two moments.
 """
@@ -32,6 +45,8 @@ Toutes les 5 min, une sale est crée par bière sur les futs
 class Sale(TimestamptedModel):
     volume = models.FloatField(default=0.0) # cl
     related_beer = models.ForeignKey(Beer, on_delete=models.CASCADE)
+
+
 
 #TODO Booleen de balance
 

@@ -61,6 +61,27 @@ def beers_remove(request):
                 return render(request, '404.html')
     return render(request, '404.html')
 
+@csrf_exempt
+def balance(request,balance_id):
+    if request.method == "POST":
+        if request.POST.get("remaining_beer") != None:
+            # modifie la quantité des bières (Depuis la balance)    
+            balance = Balance.objects.get(id = balance_id)
+            balance.remaining_beer = request.POST.get("remaining_beer")
+            balance.save()
+        elif request.POST.get("activated")!= None:
+            balance = Balance.objects.get(id = balance_id)
+            print(request.POST.get("activated"))
+            balance.activated = request.POST.get("activated")
+            balance.save()
+        elif request.POST.get("sentence_display")!= None:
+            balance = Balance.objects.get(id = balance_id)
+            print(request.POST.get("sentence_display"))
+            balance.sentence_display = request.POST.get("sentence_display")
+            balance.save()
+    return render(request, '404.html')
+
+
 def beers_json(request):
     return JsonResponse(list(Beer.objects.values()), safe = False)
 
@@ -68,20 +89,29 @@ def beer_json(request, beer_id):
     data = json.loads(serializers.serialize("json", Beer.objects.filter(pk=beer_id))[1:-1])
     return JsonResponse(data["fields"])
 
+def balance_json(request, balance_id):
+    data = json.loads(serializers.serialize("json", Balance.objects.filter(pk=balance_id))[1:-1])
+    tmp_data = data["fields"]
+    # Get the beer name
+    beer = Beer.objects.get(id = int(tmp_data["related_beer"]))
+    tmp_data["related_beer"] = beer.name
+    return JsonResponse(tmp_data)
+
+#@login_required
 @csrf_exempt
-@login_required
 def message_to_script(request):
     global actual_msg_page  #To use the global variable
     if actual_msg_page == None:
         actual_msg_page = ""
-        print("souye")
+        # Pas encore de message
     if request.method == "POST":
         permanent = request.POST.get("permanent")
         freq = request.POST.get("freq")
         msg = request.POST.get("message")
         actual_msg_page = {"message": msg, "freq":freq, "permanent":permanent}
-    print(list(actual_msg_page), safe = False)
-    return JsonResponse(list(actual_msg_page), safe = False)
+    #print(list(actual_msg_page), safe = False)
+    print(actual_msg_page)
+    return JsonResponse(actual_msg_page, safe = False)
 
 @csrf_exempt
 @login_required

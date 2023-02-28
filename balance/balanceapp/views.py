@@ -22,28 +22,44 @@ def index(request):  #Need request argument
 
     return render(request, 'index.html', {'example':example_data})
 
+#@login_required
 @csrf_exempt
-@login_required
 def beers(request):
     beers = Beer.objects.all()
     if request.method == "POST":    #If it's a POST request
         print(request.POST)
-        #Check that the bier does not exist
+        #Check that the beer does not exist
         for beer in beers:
             if beer.name == request.POST.get("beer_name"):
+                #If the beer exists, edit it
+                beer_to_edit = Beer.objects.get(name = request.POST.get("beer_name"))
+                beer_to_edit.name = request.POST.get("beer_name")
+                beer_to_edit.weight_empty = request.POST.get("weight_empty")
+                beer_to_edit.rho = request.POST.get("rho")
+                beer_to_edit.quantity = request.POST.get("quantity")
+                beer_to_edit.save()
                 return render(request, '404.html')
-        #data = request.POST
+        #else, create it
         beer_name = request.POST.get("beer_name")
         weight_empty = request.POST.get("weight_empty")
         rho = request.POST.get("rho")
         quantity = request.POST.get("quantity")
         try:
             Beer.objects.create(name = beer_name, weight_empty= weight_empty, rho=rho, quantity=quantity)
-
         except:
             pass
     return render(request, '404.html')
 
+@csrf_exempt
+def beers_remove(request):
+    beers = Beer.objects.all()
+    if request.method == "POST":
+        for beer in beers:
+            if beer.name == request.POST.get("beer_name"):
+                beer_to_remove = Beer.objects.get(name = request.POST.get("beer_name"))
+                beer_to_remove.delete() #Remove the beer from the db
+                return render(request, '404.html')
+    return render(request, '404.html')
 
 def beers_json(request):
     return JsonResponse(list(Beer.objects.values()), safe = False)

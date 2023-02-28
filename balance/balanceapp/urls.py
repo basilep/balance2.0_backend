@@ -7,6 +7,7 @@ urlpatterns = [
     path('beers', views.beers, name='beers'),
     path('beers_data', views.beers_json, name='beers_data'),
     path('beers_data/<int:beer_id>', views.beer_json, name='beer_data'),
+    path('beers_remove', views.beers_remove, name='beers_remove'),
     path('message_data', views.message_to_script, name='message_data'),
     path('message', views.message, name='message'),
     path('affond', views.affond, name='affond'),

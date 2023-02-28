@@ -14,7 +14,7 @@ class TimestamptedModel(models.Model):
         abstract = True
 
 class Beer(TimestamptedModel):
-    name = models.CharField(max_length = 32)
+    name = models.CharField(max_length = 32)    #A beer is identified by its name
     weight_empty = models.FloatField()   # g
     rho = models.FloatField()    # g/cm3
     quantity = models.FloatField() # cl

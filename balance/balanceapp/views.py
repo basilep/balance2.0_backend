@@ -18,15 +18,13 @@ actual_msg_page = None
 # VIEWS
 
 def index(request):  #Need request argument
-    example_data = ["souye", "xeu le deux", "yaaaaaa"]
-
-    return render(request, 'index.html', {'example':example_data})
+    return render(request, '404.html')
 
 #@login_required
 @csrf_exempt
 def beers(request):
-    beers = Beer.objects.all()
     if request.method == "POST":    #If it's a POST request
+        beers = Beer.objects.all()
         print(request.POST)
         #Check that the beer does not exist
         for beer in beers:
@@ -38,7 +36,7 @@ def beers(request):
                 beer_to_edit.rho = request.POST.get("rho")
                 beer_to_edit.quantity = request.POST.get("quantity")
                 beer_to_edit.save()
-                return render(request, '404.html')
+                return JsonResponse(list(Beer.objects.values()), safe = False)
         #else, create it
         beer_name = request.POST.get("beer_name")
         weight_empty = request.POST.get("weight_empty")
@@ -48,7 +46,11 @@ def beers(request):
             Beer.objects.create(name = beer_name, weight_empty= weight_empty, rho=rho, quantity=quantity)
         except:
             pass
-    return render(request, '404.html')
+    return JsonResponse(list(Beer.objects.values()), safe = False)
+
+def beer_json(request, beer_id):
+    data = json.loads(serializers.serialize("json", Beer.objects.filter(pk=beer_id))[1:-1])
+    return JsonResponse(data["fields"])
 
 @csrf_exempt
 def beers_remove(request):
@@ -79,17 +81,6 @@ def balance(request,balance_id):
             print(request.POST.get("sentence_display"))
             balance.sentence_display = request.POST.get("sentence_display")
             balance.save()
-    return render(request, '404.html')
-
-
-def beers_json(request):
-    return JsonResponse(list(Beer.objects.values()), safe = False)
-
-def beer_json(request, beer_id):
-    data = json.loads(serializers.serialize("json", Beer.objects.filter(pk=beer_id))[1:-1])
-    return JsonResponse(data["fields"])
-
-def balance_json(request, balance_id):
     data = json.loads(serializers.serialize("json", Balance.objects.filter(pk=balance_id))[1:-1])
     tmp_data = data["fields"]
     # Get the beer name
@@ -112,7 +103,7 @@ def message_to_script(request):
     #print(list(actual_msg_page), safe = False)
     print(actual_msg_page)
     return JsonResponse(actual_msg_page, safe = False)
-
+"""
 @csrf_exempt
 @login_required
 def message(request):
@@ -129,13 +120,10 @@ def message(request):
         #freq and permanent send to the raspberry
         Message.objects.create(message=msg)
         msgs = Message.objects.all()
-    return render(request, 'message.html', {'messages':msgs})
+    return render(request, 'message.html', {'messages':msgs})"""
 
 def affond(request):
-    return render(request, 'affond.html')
-
-def test(request, test_id):
-    return render(request, 'index.html', {'id': test_id})
+    return render(request, '404.html')
 
 @csrf_exempt
 def login_user(request):
@@ -149,4 +137,5 @@ def login_user(request):
             login(request, user)
         else:
             print("error")
-    return render(request, 'login.html')
+    #Need to have a login html (in templates)
+    return render(request, '404.html')

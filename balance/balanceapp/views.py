@@ -99,7 +99,8 @@ def message_to_script(request):
         permanent = request.POST.get("permanent")
         freq = request.POST.get("freq")
         msg = request.POST.get("message")
-        actual_msg_page = {"message": msg, "freq":freq, "permanent":permanent}
+        scroll = request.POST.get("scroll")
+        actual_msg_page = {"message": msg, "freq":freq, "permanent":permanent, "scroll":scroll}
     #print(list(actual_msg_page), safe = False)
     print(actual_msg_page)
     return JsonResponse(actual_msg_page, safe = False)

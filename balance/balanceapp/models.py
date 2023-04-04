@@ -33,6 +33,7 @@ class Balance(models.Model):
 class Message_to_send(models.Model):
     message = models.CharField(max_length = 128)
     permanent = models.BooleanField()
+    scroll = models.BooleanField()
     frequence = models.FloatField(default=0.0)
 
 #Represents the number of beers consumed between two moments.

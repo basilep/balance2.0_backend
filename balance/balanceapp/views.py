@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
 import json
+import requests
 from . models import *
 
 
@@ -101,8 +102,14 @@ def message_to_script(request):
         msg = request.POST.get("message")
         scroll = request.POST.get("scroll")
         actual_msg_page = {"message": msg, "freq":freq, "permanent":permanent, "scroll":scroll}
-    #print(list(actual_msg_page), safe = False)
-    print(actual_msg_page)
+        ########################
+        ##    WEBHOOK PART    ##
+        ########################
+        try:
+            requests.post('http://127.0.0.1:5000/webhook', data=json.dumps(actual_msg_page), headers={'Content-Type':'application/json'})
+        except:
+            print("The server is not reachable") 
+    #print(actual_msg_page)
     return JsonResponse(actual_msg_page, safe = False)
 """
 @csrf_exempt

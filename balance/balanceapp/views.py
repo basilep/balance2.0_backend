@@ -47,22 +47,29 @@ def beers(request):
             Beer.objects.create(name = beer_name, weight_empty= weight_empty, rho=rho, quantity=quantity)
         except:
             pass
+
+    elif(request.method == "DELETE"):    #If it's a DELETE request
+        beers = Beer.objects.all()
+        for beer in beers:
+            if beer.name == request.POST.get("beer_name"):
+                beer_to_remove = Beer.objects.get(name = request.POST.get("beer_name"))
+                beer_to_remove.delete() #Remove the beer from the db
     return JsonResponse(list(Beer.objects.values()), safe = False)
 
 def beer_json(request, beer_id):
     data = json.loads(serializers.serialize("json", Beer.objects.filter(pk=beer_id))[1:-1])
     return JsonResponse(data["fields"])
 
-@csrf_exempt
-def beers_remove(request):
-    beers = Beer.objects.all()
-    if request.method == "POST":
-        for beer in beers:
-            if beer.name == request.POST.get("beer_name"):
-                beer_to_remove = Beer.objects.get(name = request.POST.get("beer_name"))
-                beer_to_remove.delete() #Remove the beer from the db
-                return render(request, '404.html')
-    return render(request, '404.html')
+#@csrf_exempt
+#def beers_remove(request):
+ #   beers = Beer.objects.all()
+  #  if request.method == "POST":
+   #     for beer in beers:
+    #        if beer.name == request.POST.get("beer_name"):
+     #           beer_to_remove = Beer.objects.get(name = request.POST.get("beer_name"))
+      #          beer_to_remove.delete() #Remove the beer from the db
+       #         return render(request, '404.html')
+    #return render(request, '404.html')
 
 @csrf_exempt
 def balance(request,balance_id):

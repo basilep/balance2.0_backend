@@ -8,4 +8,5 @@ cd balance
 py manage.py runserver
 
 ### Kali virtualenv
+virtualenv env
 source env/bin/activate

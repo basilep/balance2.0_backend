@@ -1,6 +1,6 @@
 from dataclasses import field
 from glob import escape
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, login
@@ -47,18 +47,19 @@ def beers(request):
             Beer.objects.create(name = beer_name, weight_empty= weight_empty, rho=rho, quantity=quantity)
         except:
             pass
-
-    elif(request.method == "DELETE"):    #If it's a DELETE request
-        beers = Beer.objects.all()
-        for beer in beers:
-            if beer.name == request.POST.get("beer_name"):
-                beer_to_remove = Beer.objects.get(name = request.POST.get("beer_name"))
-                beer_to_remove.delete() #Remove the beer from the db
     return JsonResponse(list(Beer.objects.values()), safe = False)
 
+@csrf_exempt
 def beer_json(request, beer_id):
-    data = json.loads(serializers.serialize("json", Beer.objects.filter(pk=beer_id))[1:-1])
-    return JsonResponse(data["fields"])
+    if(request.method == "DELETE"):    #If it's a DELETE request
+        # Récupérez l'objet à supprimer
+        obj = get_object_or_404(Beer, pk=beer_id)
+        # Supprimez l'objet
+        obj.delete()
+        return JsonResponse(list(Beer.objects.values()), safe = False)
+    else:
+        data = json.loads(serializers.serialize("json", Beer.objects.filter(pk=beer_id))[1:-1])
+        return JsonResponse(data["fields"])
 
 #@csrf_exempt
 #def beers_remove(request):

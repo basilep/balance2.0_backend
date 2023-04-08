@@ -27,8 +27,9 @@ class Balance(models.Model):
     activated = models.BooleanField()
     related_beer = models.ForeignKey(Beer, on_delete=models.CASCADE)
     remaining_beer = models.FloatField(default=0.0) # cl ?
-    #Dans un premier temps flemme de stocker les collectifs, écrit juste la phrase envoyé par le front
-    sentence_display = models.CharField(max_length = 64)
+    nomComplet = models.CharField(max_length = 64)
+    nomSimple = models.CharField(max_length = 64)
+    nameBeerOrCollective = models.BooleanField()
 
 class Message_to_send(models.Model):
     message = models.CharField(max_length = 128)

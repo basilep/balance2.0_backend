@@ -76,25 +76,22 @@ def beer_json(request, beer_id):
 def balance(request,balance_id):
     if request.method == "POST":
         if request.POST.get("remaining_beer") != None:
-            # modifie la quantité des bières (Depuis la balance)    
+            # modifie les données de la balance
             balance = Balance.objects.get(id = balance_id)
             balance.remaining_beer = request.POST.get("remaining_beer")
+            balance.nomComplet = request.POST.get("nomComplet")
+            balance.nomSimple = request.POST.get("nomSimple")
+            balance.nameBeerOrCollective = request.POST.get("nameBeerOrCollective")
+            print("modification des données de la balance")
             balance.save()
         elif request.POST.get("activated")!= None:
             balance = Balance.objects.get(id = balance_id)
             print(request.POST.get("activated"))
             balance.activated = request.POST.get("activated")
             balance.save()
-        elif request.POST.get("sentence_display")!= None:
-            balance = Balance.objects.get(id = balance_id)
-            print(request.POST.get("sentence_display"))
-            balance.sentence_display = request.POST.get("sentence_display")
-            balance.save()
     data = json.loads(serializers.serialize("json", Balance.objects.filter(pk=balance_id))[1:-1])
     tmp_data = data["fields"]
-    # Get the beer name
-    beer = Beer.objects.get(id = int(tmp_data["related_beer"]))
-    tmp_data["related_beer"] = beer.name
+    tmp_data["id"] = balance_id
     return JsonResponse(tmp_data)
 
 #@login_required

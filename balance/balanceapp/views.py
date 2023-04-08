@@ -94,6 +94,10 @@ def balance(request,balance_id):
     tmp_data["id"] = balance_id
     return JsonResponse(tmp_data)
 
+@csrf_exempt
+def balances(request):
+    return JsonResponse(list(Balance.objects.values()), safe = False)    
+
 #@login_required
 @csrf_exempt
 def message_to_script(request):

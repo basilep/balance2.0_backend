@@ -4,11 +4,19 @@ from . import views
 
 app_name = 'balanceapp'
 urlpatterns = [
-    path('beers', views.beers, name='beers'),
-    path('beers/<int:beer_id>', views.beer_json, name='beer_data'),
-    #path('beers_remove', views.beers_remove, name='beers_remove'),
+    path('alerts', views.alerts, name='alerts'),
+    path('box_data', views.box_data, name='box_data'),
+    path('update_beer_data', views.update_beer_data, name='update_beer_data'),
+    path('beers_on_balance', views.beers_on_balance, name='beers_on_balance'),
     path('balance/', views.balances, name='balances'),
     path('balance/<int:balance_id>', views.balance, name='balance'),
+    
+    path('beers', views.beers, name='beers'),
+    path('beers/<int:beer_id>', views.beer_json, name='beer_data'),
+    
+    #path('beers_remove', views.beers_remove, name='beers_remove'),
+    
+    
     path('message_data', views.message_to_script, name='message_data'),
     #path('message', views.message, name='message'),
     path('affond', views.affond, name='affond'),

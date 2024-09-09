@@ -21,6 +21,80 @@ actual_msg_page = None
 def index(request):  #Need request argument
     return render(request, '404.html')
 
+# Manage alerts
+@csrf_exempt
+def alerts(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        alert_type = data.get("type")
+        alert_data = data.get("data")
+
+        # Check that `type` is provided
+        if alert_type is None:
+            return JsonResponse({"error": "Alert type is required."}, status=400)
+        try:
+            Alert.objects.create(type=alert_type, data=alert_data)
+        except:
+            pass
+    return JsonResponse(list(Alert.objects.values()), safe = False)
+
+# Manage temp and humidity
+@csrf_exempt
+def box_data(request):
+    if request.method == "POST":
+        temperature = request.POST.get("temperature")
+        humidity = request.POST.get("humidity")
+        try:
+            BoxData.objects.create(temperature=temperature, humidity=humidity)
+        except:
+            pass
+    return JsonResponse(list(BoxData.objects.values()), safe = False)
+
+@csrf_exempt
+def update_beer_data(request):
+    if request.method == "POST":
+        str_beer_1 = request.POST.get("str_beer_1")
+        str_beer_2 = request.POST.get("str_beer_2")
+
+        balance_1 = Balance.objects.get(id=1)
+        balance_1.remaining_beer = str_beer_1
+        balance_1.save()
+        balance_2 = Balance.objects.get(id=2)
+        balance_2.remaining_beer = str_beer_2
+        balance_2.save()
+
+        return JsonResponse(list(Balance.objects.values()), safe = False)
+    
+
+@csrf_exempt
+def beers_on_balance(request):
+    # Représente les données des bières sur les balances
+    # TODO est-ce qu'on doit envoyer que celles actives?
+    try:
+        beer_1 = Balance.objects.get(id=1).related_beer
+        beer_2 = Balance.objects.get(id=2).related_beer
+
+        # Prepare the response data for both balances
+        data = {
+            "balance_1": {
+                "name": beer_1.name,
+                "weight_empty": beer_1.weight_empty,
+                "rho": beer_1.rho,
+                "quantity": beer_1.quantity
+            },
+           "balance_2": {
+                "name": beer_2.name,
+                "weight_empty": beer_2.weight_empty,
+                "rho": beer_2.rho,
+                "quantity": beer_2.quantity
+            },
+        }
+
+        # Return the response as JSON
+        return JsonResponse(data, status=200)
+    except Balance.DoesNotExist:
+        return JsonResponse({"error": "One or both balances do not exist."}, status=404)
+
 #@login_required
 @csrf_exempt
 def beers(request):
@@ -75,20 +149,21 @@ def beer_json(request, beer_id):
 @csrf_exempt
 def balance(request,balance_id):
     if request.method == "POST":
-        if request.POST.get("remaining_beer") != None:
-            # modifie les données de la balance
-            balance = Balance.objects.get(id = balance_id)
+        balance = Balance.objects.get(id = balance_id)
+        # modifie les données de la balance
+        if request.POST.get("related_beer_id"):
+            balance.related_beer = Beer.objects.get(id=request.POST.get("related_beer_id")) #Change the current beer
+        if request.POST.get("remaining_beer"):
             balance.remaining_beer = request.POST.get("remaining_beer")
+        if request.POST.get("nomComplet"):
             balance.nomComplet = request.POST.get("nomComplet")
+        if request.POST.get("nomSimple"):
             balance.nomSimple = request.POST.get("nomSimple")
+        if request.POST.get("nameBeerOrCollective")!= None:
             balance.nameBeerOrCollective = request.POST.get("nameBeerOrCollective")
-            print("modification des données de la balance")
-            balance.save()
-        elif request.POST.get("activated")!= None:
-            balance = Balance.objects.get(id = balance_id)
-            print(request.POST.get("activated"))
+        if request.POST.get("activated")!= None:
             balance.activated = request.POST.get("activated")
-            balance.save()
+        balance.save()
     data = json.loads(serializers.serialize("json", Balance.objects.filter(pk=balance_id))[1:-1])
     tmp_data = data["fields"]
     tmp_data["id"] = balance_id

@@ -10,7 +10,8 @@ urlpatterns = [
     path('beers_on_balance', views.beers_on_balance, name='beers_on_balance'),
     path('balance/', views.balances, name='balances'),
     path('balance/<int:balance_id>', views.balance, name='balance'),
-    
+    path('matrice_led', views.matrice_led, name='matrice_led'),
+
     path('beers', views.beers, name='beers'),
     path('beers/<int:beer_id>', views.beer_json, name='beer_data'),
     

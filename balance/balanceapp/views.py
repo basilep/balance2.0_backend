@@ -173,6 +173,39 @@ def balance(request,balance_id):
 def balances(request):
     return JsonResponse(list(Balance.objects.values()), safe = False)    
 
+@csrf_exempt
+def matrice_led(request):
+    try:
+        balance_1 = Balance.objects.get(id=1)
+        balance_1_enable = balance_1.activated
+        name_1 = balance_1.nomSimple
+        name_beer_1 = balance_1.related_beer.name # Access related beer name directly through the foreign key
+        name_or_collectif_1 = balance_1.nameBeerOrCollective
+
+        balance_2 = Balance.objects.get(id=2)
+        balance_2_enable = balance_2.activated
+        name_2 = balance_2.nomSimple
+        name_beer_2 = balance_2.related_beer.name
+        name_or_collectif_2 = balance_2.nameBeerOrCollective
+
+        data = {
+                "balance_1": {
+                    "enable": balance_1_enable,
+                    "name": name_1,
+                    "name_beer": name_beer_1,
+                    "name_or_collectif": name_or_collectif_1,
+                },
+                "balance_2": {
+                    "enable": balance_2_enable,
+                    "name": name_2,
+                    "name_beer": name_beer_2,
+                    "name_or_collectif": name_or_collectif_2,
+                }
+            }
+        return JsonResponse(data, status=200)
+    except Balance.DoesNotExist:
+        return JsonResponse({"error": "One or both balances do not exist."}, status=404)
+
 #@login_required
 @csrf_exempt
 def message_to_script(request):

@@ -9,7 +9,7 @@ from django.core import serializers
 import json
 import requests
 from . models import *
-
+from decode_alarme import decode_alarme_from_decimal
 
 # Create your views here.
 
@@ -25,18 +25,19 @@ def index(request):  #Need request argument
 @csrf_exempt
 def alerts(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        alert_type = data.get("type")
-        alert_data = data.get("data")
-
-        # Check that `type` is provided
-        if alert_type is None:
-            return JsonResponse({"error": "Alert type is required."}, status=400)
-        try:
-            Alert.objects.create(type=alert_type, data=alert_data)
-        except:
-            pass
-    return JsonResponse(list(Alert.objects.values()), safe = False)
+        decimal_data = request.POST.get("alarme_data")
+        alerts = decode_alarme_from_decimal(decimal_data)   # list of alerts
+        for alert in alerts:
+            try:
+                Alert.objects.create(type=alert)
+            except:
+                pass 
+    alerts = list(Alert.objects.values('id', 'type', 'created_at'))
+    for alert in alerts:
+        # Add the display name to each alert dictionary
+        alert_obj = Alert.objects.get(id=alert['id'])
+        alert['alert_name'] = alert_obj.get_type_display()
+    return JsonResponse(alerts, safe = False)
 
 # Manage temp and humidity
 @csrf_exempt

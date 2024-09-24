@@ -16,18 +16,24 @@ class TimestamptedModel(models.Model):
 # Instantané
 class Alert(models.Model):
     ALERT_TYPE = (
-        (1, 'OverWeight'),  # Trop de poids
-        (2, 'NoFut'),       # Pas de fut sur la balance
-        (3, 'EndFut'),      # Fin du fut
-        (4, 'OverHeat'),    # Surchauffe du boitier
-        (5, 'OverHumidity'),# Trop d'humidité du boitier
-        (6, 'NoBalance'),   # Pas de balance branchée
-        (7, 'NoLedScreen'), # Pas d'afficheur branché
+        (1, 'Matrice defaut'),
+        (2, 'Humidity'),
+        (3, 'Temperature'),
+        (4, 'B2 NOFut'),
+        (5, 'B1 NOFut'),
+        (6, 'B2 ENDFut'),
+        (7, 'B1 ENDFut'),
+        (8, 'B2 Unplug'),
+        (9, 'B1 Unplug'),
+        (10, 'NB B2 Defaut'),
+        (11, 'NB B1 Defaut'),
+        (12, 'B2 Def'),
+        (13, 'B1 Def'),
+        (14, 'Communication Defaut')
     )
     
     created_at = models.DateTimeField(auto_now_add=True)
     type = models.PositiveSmallIntegerField(choices=ALERT_TYPE, null=True, blank=True)  # To prevent errors when the alert is null at the makemigrations
-    data = models.JSONField(default=dict)   # Is it needed or just the type
 
 # Update chaque 5 minutes
 class BoxData(models.Model):

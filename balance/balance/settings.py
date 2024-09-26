@@ -80,7 +80,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'balance.wsgi.application'
-
+#ASGI_APPLICATION = 'balance.asgi.application'   # For websocket (asynchronous)
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases

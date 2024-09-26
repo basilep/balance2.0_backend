@@ -10,11 +10,14 @@ import json
 import requests
 from . models import *
 from decode_alarme import decode_alarme_from_decimal
+import asyncio
+import websockets
 
 # Create your views here.
 
 # GLOBAL VAR
 actual_msg_page = None
+web_socket_client = None
 
 # VIEWS
 
@@ -247,6 +250,55 @@ def message(request):
         Message.objects.create(message=msg)
         msgs = Message.objects.all()
     return render(request, 'message.html', {'messages':msgs})"""
+
+@csrf_exempt
+def web_socket(request):
+    print("Je run le server, normalement ça va fonctionner")
+    asyncio.run(run_websocket_server())
+    return render(request, '404.html')
+
+# Synchronous view to handle POST request
+@csrf_exempt
+def manage_data_to_script(request):
+    if request.method == "POST":
+        received_data = request.POST.get("data")  # Data received from the client
+        print(f"Data received from the front: {received_data}")
+        
+        # Trigger WebSocket data sending (runs async code in a synchronous view)
+        asyncio.run(send_data_to_client(received_data))
+        
+        return JsonResponse({'status': 'success', 'message': 'Data received and processed successfully.'}, status=200)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
+
+async def websocket_handler(websocket, path):
+    global connected_client
+    connected_client = websocket  # Store the connected client
+    try:
+        # Keep the connection open indefinitely
+        await asyncio.Future()  # Keep connection open until client disconnects
+    finally:
+        connected_client = None  # Reset when the client disconnects
+
+# Function to send data to the single client
+async def send_data_to_client(data):
+    global connected_client
+    if connected_client:  # Only send if there is a connected client
+        await connected_client.send(data)
+        print(f"Sent data to the client: {data}")
+    else:
+        print("No client connected.")
+
+# WebSocket server starter
+async def run_websocket_server():
+    async with websockets.serve(websocket_handler, "localhost", 5000):
+        await asyncio.Future()  # Keep the server running
+
+# You can call this function to send data to the connected client
+def broadcast_data(data):
+    asyncio.run(send_data_to_client(data))
+
 
 def affond(request):
     return render(request, '404.html')

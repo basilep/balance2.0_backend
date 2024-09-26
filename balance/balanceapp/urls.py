@@ -17,7 +17,9 @@ urlpatterns = [
     
     #path('beers_remove', views.beers_remove, name='beers_remove'),
     
-    
+    path('web_socket', views.web_socket, name='web_socket'),
+    path('manage_data_to_script', views.manage_data_to_script, name='manage_data_to_script'),
+
     path('message_data', views.message_to_script, name='message_data'),
     #path('message', views.message, name='message'),
     path('affond', views.affond, name='affond'),

@@ -259,12 +259,12 @@ async def send_data_to_client(data):
         print("No client connected.")
 
 def start_web_socket_server():
-    print("Je run le server, normalement ça va fonctionner")
+    print("Launching web socket server")
     asyncio.run(run_websocket_server())
 
 # WebSocket server starter
 async def run_websocket_server():
-    async with websockets.serve(websocket_handler, "localhost", 5000):
+    async with websockets.serve(websocket_handler, "0.0.0.0", 5000):
         await asyncio.Future()  # Keep the server running
 
 

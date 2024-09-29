@@ -2,7 +2,7 @@ import asyncio
 import websockets
 
 async def listen_to_server():
-    uri = "ws://localhost:5000"
+    uri = "wss://balance.e-kot.be:5000"
     while True:
         try:
             async with websockets.connect(uri) as websocket:

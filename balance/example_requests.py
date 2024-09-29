@@ -6,7 +6,7 @@ import requests
 #req = requests.post("http://127.0.0.1:8000/balance/update_beer_data", {"str_beer_1":10, "str_beer_2":13})
 #req = requests.get("http://127.0.0.1:8000/balance/balance")
 #req = requests.get("http://127.0.0.1:8000/balance/beers_on_balance")
-req = requests.post("http://127.0.0.1:8000/balance/balance/2", {"related_beer_id":10, "remaining_beer":180})
+#req = requests.post("http://127.0.0.1:8000/balance/balance/2", {"related_beer_id":10, "remaining_beer":180})
 #req = requests.post("http://127.0.0.1:8000/balance/balance/1", {"nomComplet":"Cercle Informatique", "nomSimple":"INFO", "nameBeerOrCollective":True})
 #req = requests.get("http://127.0.0.1:8000/balance/matrice_led")
 
@@ -14,6 +14,6 @@ req = requests.post("http://127.0.0.1:8000/balance/balance/2", {"related_beer_id
 #req = requests.post("http://127.0.0.1:8000/balance/balance/1", {"activated":True, "related_beer_id":29, "remaining_beer":180})
 #req = requests.post("http://127.0.0.1:8000/balance/send_message", {"message" : "souloulouye"})
 #req = requests.post("http://127.0.0.1:8000/balance/data_to_script", json={"message":{"message": "SOUYE", "freq":15, "permanent":True, "scroll":False}})
-
+req = requests.get("http://127.0.0.1:8000/balance/alerts")
 
 print(req.text)

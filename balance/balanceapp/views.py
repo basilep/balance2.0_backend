@@ -139,17 +139,6 @@ def beer_json(request, beer_id):
         data = json.loads(serializers.serialize("json", Beer.objects.filter(pk=beer_id))[1:-1])
         return JsonResponse(data["fields"])
 
-#@csrf_exempt
-#def beers_remove(request):
- #   beers = Beer.objects.all()
-  #  if request.method == "POST":
-   #     for beer in beers:
-    #        if beer.name == request.POST.get("beer_name"):
-     #           beer_to_remove = Beer.objects.get(name = request.POST.get("beer_name"))
-      #          beer_to_remove.delete() #Remove the beer from the db
-       #         return render(request, '404.html')
-    #return render(request, '404.html')
-
 @csrf_exempt
 def balance(request,balance_id):
     if request.method == "POST":
@@ -157,6 +146,10 @@ def balance(request,balance_id):
         # modifie les données de la balance
         if request.POST.get("related_beer_id"):
             balance.related_beer = Beer.objects.get(id=request.POST.get("related_beer_id")) #Change the current beer
+            # notify the script
+            beer_to_change = balance.related_beer
+            data = {"balance_"+str(balance_id):{"name": beer_to_change.name,"weight_empty": beer_to_change.weight_empty,"rho": beer_to_change.rho,"quantity": beer_to_change.quantity}}
+            asyncio.run(send_data_to_client(data))
         if request.POST.get("remaining_beer"):
             balance.remaining_beer = request.POST.get("remaining_beer")
         if request.POST.get("nomComplet"):
@@ -168,9 +161,13 @@ def balance(request,balance_id):
         if request.POST.get("activated")!= None:
             balance.activated = request.POST.get("activated")
         balance.save()
+        #send changes to the script
+        data = {"balance_"+str(balance_id):{"enable": balance.activated, "name": balance.nomSimple, "name_beer": balance.related_beer.name, "name_or_collectif": balance.nameBeerOrCollective}}
+        asyncio.run(send_data_to_client(data))
     data = json.loads(serializers.serialize("json", Balance.objects.filter(pk=balance_id))[1:-1])
     tmp_data = data["fields"]
     tmp_data["id"] = balance_id
+
     return JsonResponse(tmp_data)
 
 @csrf_exempt
@@ -206,66 +203,36 @@ def matrice_led(request):
                     "name_or_collectif": name_or_collectif_2,
                 }
             }
+        
         return JsonResponse(data, status=200)
     except Balance.DoesNotExist:
         return JsonResponse({"error": "One or both balances do not exist."}, status=404)
-
-#@login_required
-@csrf_exempt
-def message_to_script(request):
-    global actual_msg_page  #To use the global variable
-    if actual_msg_page == None:
-        actual_msg_page = ""
-        # Pas encore de message
-    if request.method == "POST":
-        permanent = request.POST.get("permanent")
-        freq = request.POST.get("freq")
-        msg = request.POST.get("message")
-        scroll = request.POST.get("scroll")
-        actual_msg_page = {"message": msg, "freq":freq, "permanent":permanent, "scroll":scroll}
-        ########################
-        ##    WEBHOOK PART    ##
-        ########################
-        try:
-            requests.post('http://127.0.0.1:5000/webhook', data=json.dumps(actual_msg_page), headers={'Content-Type':'application/json'})
-        except:
-            print("The server is not reachable") 
-    #print(actual_msg_page)
-    return JsonResponse(actual_msg_page, safe = False)
-"""
-@csrf_exempt
-@login_required
-def message(request):
-    msgs = Message.objects.all()
-    if request.method == "POST":
-        for msg in msgs:
-            if msg.message == request.POST.get("msg"):
-                print("Existe déjà")
-                return render(request, 'beers.html', {'messages':msgs})
-        permanent = request.POST.get("permanent")
-        freq = request.POST.get("freq")
-        
-        msg = request.POST.get("msg")
-        #freq and permanent send to the raspberry
-        Message.objects.create(message=msg)
-        msgs = Message.objects.all()
-    return render(request, 'message.html', {'messages':msgs})"""
-
-@csrf_exempt
-def web_socket(request):
-    print("Je run le server, normalement ça va fonctionner")
-    asyncio.run(run_websocket_server())
-    return render(request, '404.html')
 
 # Synchronous view to handle POST request
 @csrf_exempt
 def manage_data_to_script(request):
     if request.method == "POST":
-        received_data = request.POST.get("data")  # Data received from the client
-        print(f"Data received from the front: {received_data}")
         
+        received_data = json.loads(request.body)  # Parse the JSON body
+        keys = received_data.keys()   # Should have only one key
+        key = [key for key in keys]
+
+        if len(key) > 1:
+            return JsonResponse({'status': 'error', 'message': 'Invalid usage of the method'}, status=500)
+        
+        elif key[0] == "message":
+            received_data = json.loads(request.body)  # Parse JSON body
+            message_data = received_data.get("message")
+            permanent = message_data.get("permanent")
+            freq = message_data.get("freq")
+            msg = message_data.get("message")
+            scroll = message_data.get("scroll")
+            actual_msg_page = {"message": msg, "freq":freq, "permanent":permanent, "scroll":scroll}
+
+        #elif key[0] == "matrice_led":
         # Trigger WebSocket data sending (runs async code in a synchronous view)
-        asyncio.run(send_data_to_client(received_data))
+
+        asyncio.run(send_data_to_client(actual_msg_page))
         
         return JsonResponse({'status': 'success', 'message': 'Data received and processed successfully.'}, status=200)
     else:
@@ -285,19 +252,20 @@ async def websocket_handler(websocket, path):
 async def send_data_to_client(data):
     global connected_client
     if connected_client:  # Only send if there is a connected client
+        data = json.dumps(data) # Covert json to string
         await connected_client.send(data)
         print(f"Sent data to the client: {data}")
     else:
         print("No client connected.")
 
+def start_web_socket_server():
+    print("Je run le server, normalement ça va fonctionner")
+    asyncio.run(run_websocket_server())
+
 # WebSocket server starter
 async def run_websocket_server():
     async with websockets.serve(websocket_handler, "localhost", 5000):
         await asyncio.Future()  # Keep the server running
-
-# You can call this function to send data to the connected client
-def broadcast_data(data):
-    asyncio.run(send_data_to_client(data))
 
 
 def affond(request):
